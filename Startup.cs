@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using imagent_server.Data;
+using Microsoft.EntityFrameworkCore;
+using imagent_server.Repositories;
 
 namespace imagent_server
 {
@@ -23,6 +26,9 @@ namespace imagent_server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention());
+            services.AddScoped<IApplicationContext>(provider => provider.GetService<ApplicationContext>());
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddControllers();
         }
 
@@ -49,9 +55,6 @@ namespace imagent_server
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                // endpoints.MapControllerRoute(
-                //     name: "default",
-                //     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
